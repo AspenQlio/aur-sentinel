@@ -78,6 +78,42 @@ RULES: Final[tuple[Rule, ...]] = (
         score=45,
         pattern=re.compile(r"/dev/shm/[^\s;]+", re.IGNORECASE),  # noqa: S108
     ),
+    Rule(
+        rule_id="privilege.sudo-usage",
+        description="Invokes sudo or doas within package build scripts",
+        score=70,
+        pattern=re.compile(r"\b(?:sudo|doas)\b(?:\s+-[^\n;]*)*\s+[a-zA-Z0-9_./-]+", re.IGNORECASE),
+    ),
+    Rule(
+        rule_id="execution.hidden-eval",
+        description="Evaluates dynamic subshell or variable expansion",
+        score=65,
+        pattern=re.compile(r"\beval\s+[\"'\`]?\$\(", re.IGNORECASE),
+    ),
+    Rule(
+        rule_id="exfiltration.network-post",
+        description="Attempts to exfiltrate local files or data over HTTP/HTTPS",
+        score=75,
+        pattern=re.compile(
+            r"(?:curl|wget)\b[^\n;]*(?:-d\s*@|--data\s*@|-F\s*@|--post-file)",
+            re.IGNORECASE,
+        ),
+    ),
+    Rule(
+        rule_id="destruction.fork-bomb",
+        description="Classic denial-of-service fork bomb function",
+        score=100,
+        pattern=re.compile(r":\(\)\s*\{\s*:\|:&\s*\};:", re.IGNORECASE),
+    ),
+    Rule(
+        rule_id="persistence.cron-modification",
+        description="Modifies scheduled cron directories or crontab",
+        score=70,
+        pattern=re.compile(
+            r"(?:/etc/cron\.(?:d|daily|hourly|weekly|monthly)|/var/spool/cron)",
+            re.IGNORECASE,
+        ),
+    ),
 )
 
 LOW_RISK_LIMIT: Final = 30

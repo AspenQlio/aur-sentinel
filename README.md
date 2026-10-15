@@ -43,10 +43,43 @@ The tool is a read-only static analyzer written in Python. It evaluates the raw 
 
 ## Usage
 
-Run the scanner against a local `PKGBUILD` file:
+## Usage
+
+### 1. Scan a local PKGBUILD
 
 ```bash
 uv run aur-sentinel scan ./PKGBUILD
+```
+
+To enforce a maximum allowed risk level (exits with code 1 if exceeded, ideal for pre-build hooks):
+```bash
+uv run aur-sentinel scan ./PKGBUILD --max-risk medium
+```
+
+Output machine-readable JSON:
+```bash
+uv run aur-sentinel scan ./PKGBUILD --json
+```
+
+### 2. Check an AUR package directly by name
+
+Download and scan a package from the AUR in one single command:
+```bash
+uv run aur-sentinel check yay
+```
+
+### 3. Fetch PKGBUILD from AUR
+
+Download a PKGBUILD without cloning the Git repository:
+```bash
+uv run aur-sentinel fetch visual-studio-code-bin -o ./PKGBUILD
+```
+
+### 4. Integration with `paru` / `yay`
+
+Run `aur-sentinel hook` to see ready-to-use recipes for Arch Linux AUR helpers:
+```bash
+uv run aur-sentinel hook
 ```
 
 *Note: AUR Sentinel provides a security signal, not a guarantee. Static signatures can produce false positives and false negatives. Always review every `PKGBUILD`, upstream source, maintainer history, and package comments before installation.*
